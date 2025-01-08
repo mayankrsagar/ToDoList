@@ -1,5 +1,6 @@
 import {
   Fragment,
+  useEffect,
   useState,
 } from 'react';
 
@@ -30,6 +31,9 @@ const ToDo = () => {
   const { enqueueSnackbar } = useSnackbar();
   const [task, setTask] = useState("");
   const [currentFilter, setCurrentFilter] = useState("All");
+const [currentPage,setCurrentPage]=useState(1);
+
+const itemsPerPage = 4;
 
   const todos = useSelector((state) => {
     if (state.todos.filter === "Pending") {
@@ -40,6 +44,14 @@ const ToDo = () => {
       return state.todos.todos;
     }
   });
+
+
+  const startIndex=(currentPage-1)*itemsPerPage;
+  const lastIndex=startIndex + itemsPerPage;
+
+  const currentData=todos.slice(startIndex,lastIndex);
+
+const totalPages=Math.ceil(todos.length/itemsPerPage);
 
   const dispatch = useDispatch();
 
@@ -81,6 +93,30 @@ const ToDo = () => {
     dispatch(setFilter(filter));
   };
 
+const handleEnter=(e)=>{
+if(e.key==="Enter"){
+  handleAddTask();
+}
+}
+
+useEffect(() => {
+  const handleKeyDown = (e) => {
+    if (e.key === "ArrowLeft") {
+      setCurrentPage((prev) => Math.max(prev - 1, 1));
+    } else if (e.key === "ArrowRight") {
+      setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+    }
+  };
+
+  window.addEventListener("keydown", handleKeyDown);
+
+  return () => {
+    window.removeEventListener("keydown", handleKeyDown);
+  };
+}, [totalPages]);
+
+
+
   return (
     <Fragment>
       <Box
@@ -98,32 +134,18 @@ const ToDo = () => {
           variant="standard"
           value={task}
           onChange={handleChange}
+          onKeyDown={handleEnter}
+          aria-label='Add Task'
         />
         <Buttons handleClick={handleAddTask} text={"Add to List"} />
       </Box>
-      <Box>
-        {todos.length === 0 ? (
-          <Typography variant="h6" sx={{ textAlign: "center" }}>
-            No Task To Display
-          </Typography>
-        ) : (
-          todos.map((ele) => (
-            <ListDisplay
-              task={ele}
-              key={ele.id}
-              onDelete={handleDelete}
-              handleCheck={handleCheck}
-              editList={editList}
-            />
-          ))
-        )}
-        <Box
+      <Box
           display={"flex"}
           sx={{
             justifyContent: "center",
             alignItems: "center",
             gap: "10px",
-            marginTop: "1rem",
+            margin: "1rem 0",
           }}
         >
           <Button
@@ -145,6 +167,41 @@ const ToDo = () => {
             Pending
           </Button>
         </Box>
+      <Box>
+        {currentData.length === 0 ? (
+          <Typography variant="h6" sx={{ textAlign: "center" }}>
+            No Task To Display
+          </Typography>
+        ) : (
+          currentData.map((ele) => (
+            <ListDisplay
+              task={ele}
+              key={ele.id}
+              onDelete={handleDelete}
+              handleCheck={handleCheck}
+              editList={editList}
+            />
+          ))
+        )}
+        
+      </Box>
+      <Box sx={{display:"flex", justifyContent:"center", alignItems:"center", gap:"1rem"}}>
+      <Button
+  variant="outlined"
+  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+  disabled={currentPage === 1}
+>
+  Previous
+</Button>
+<Typography>{currentPage}</Typography>
+<Button
+  variant="outlined"
+  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+  disabled={currentPage === totalPages}
+>
+  Next
+</Button>
+
       </Box>
     </Fragment>
   );

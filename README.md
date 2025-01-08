@@ -16,7 +16,7 @@ This is a **ToDo Application** built using **React**, **Redux**, and **Material-
   - Pending
 - **LocalStorage Persistence**: Task data is stored in the browser's local storage for persistence between sessions.
 - **Responsive UI**: A modern and responsive design using Material-UI components.
-
+- **Pagination**: Tasks are displayed in paginated views, with 4 tasks per page for better management of large task lists. Users can navigate between pages using the Previous and Next buttons.
 ---
 
 ## Tech Stack
