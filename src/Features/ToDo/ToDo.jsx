@@ -99,6 +99,13 @@ if(e.key==="Enter"){
 }
 }
 
+// Reset `currentPage` if it goes out of bounds
+useEffect(() => {
+  if (currentPage > totalPages) {
+    setCurrentPage(Math.max(totalPages, 1));
+  }
+}, [totalPages, currentPage]);
+
 useEffect(() => {
   const handleKeyDown = (e) => {
     if (e.key === "ArrowLeft") {
@@ -197,7 +204,7 @@ useEffect(() => {
 <Button
   variant="outlined"
   onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-  disabled={currentPage === totalPages}
+  disabled={currentPage === totalPages || todos.length=== 0}
 >
   Next
 </Button>
